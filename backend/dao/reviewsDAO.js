@@ -25,7 +25,7 @@ export default class ReviewsDAO {
         restaurant_id: ObjectId(restaurantId),
       };
 
-      return await reviews.insertOne(reviewDoc);
+      return await reviews.insertOne(reviewDoc, { writeConcern: { w: 1 } });
     } catch (e) {
       console.error(`Unable to post review: ${e}`);
       return { error: e };
@@ -36,7 +36,8 @@ export default class ReviewsDAO {
     try {
       const updateResponse = await reviews.updateOne(
         { user_id: userId, _id: ObjectId(reviewId) },
-        { $set: { text: text, date: date } }
+        { $set: { text: text, date: date } },
+        { writeConcern: { w: 1 } }
       );
 
       return updateResponse;
@@ -48,10 +49,13 @@ export default class ReviewsDAO {
 
   static async deleteReview(reviewId, userId) {
     try {
-      const deleteResponse = await reviews.deleteOne({
-        _id: ObjectId(reviewId),
-        user_id: userId,
-      });
+      const deleteResponse = await reviews.deleteOne(
+        {
+          _id: ObjectId(reviewId),
+          user_id: userId,
+        },
+        { writeConcern: { w: 1 } }
+      );
 
       return deleteResponse;
     } catch (e) {
